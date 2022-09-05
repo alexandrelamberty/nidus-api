@@ -6,6 +6,7 @@ import (
 	"nidus-server/pkg/infrastructure"
 	"nidus-server/pkg/repository"
 	"nidus-server/pkg/service"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -16,10 +17,15 @@ import (
 func main() {
 
 	// Environments variables
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatalf("Error loading .env file")
+	// FIXME: Improve dev/build workflow with environment variables
+	// With Docker environment variables are loaded into the container.
+	// With Go we load the local .env file
+	_, exist := os.LookupEnv("DATABASE_URI")
+	if !exist {
+		err := godotenv.Load(".env")
+		if err != nil {
+			log.Fatalf("Error loading .env file")
+		}
 	}
 
 	// Fiber Application

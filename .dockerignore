@@ -12,3 +12,4 @@
 .vscode
 
 *_test.go
+.env

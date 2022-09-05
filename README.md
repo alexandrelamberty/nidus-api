@@ -1,3 +1,5 @@
+[![Go](https://github.com/alexandrelamberty/nidus-api/actions/workflows/go.yml/badge.svg)](https://github.com/alexandrelamberty/nidus-api/actions/workflows/go.yml)
+
 # Nidus API
 
 Home monitoring API part of the
@@ -14,6 +16,14 @@ Home monitoring API part of the
 - Docker
 - MongoDB
 - Fiber
+
+## Environment variables
+
+```properties
+ENV=dev|prod
+MONGO_URI=mongodb://user:pass@domain:port/database
+PAIRING_KEY=1235
+```
 
 ## Usage
 
