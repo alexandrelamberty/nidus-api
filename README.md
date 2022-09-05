@@ -1,5 +1,5 @@
 [![Go](https://github.com/alexandrelamberty/nidus-api/actions/workflows/go.yml/badge.svg)](https://github.com/alexandrelamberty/nidus-api/actions/workflows/go.yml)
-[![Docker Build & Push Hub](https://github.com/alexandrelamberty/nidus-api/actions/workflows/docker.yml/badge.svg)](https://github.com/alexandrelamberty/nidus-api/actions/workflows/docker.yml)
+[![Docker](https://github.com/alexandrelamberty/nidus-api/actions/workflows/docker.yml/badge.svg)](https://github.com/alexandrelamberty/nidus-api/actions/workflows/docker.yml)
 
 # Nidus API
 
