@@ -1,15 +1,17 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"nidus-server/internal/requests"
 	"nidus-server/internal/responses"
-	"nidus-server/pkg/domain"
 	"nidus-server/pkg/service"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// GetMeasurements is a function to get all services from the database
 func GetAllMeasurements(service service.MeasurementService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		result, err := service.ListMeasurements()
@@ -17,74 +19,46 @@ func GetAllMeasurements(service service.MeasurementService) fiber.Handler {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(responses.MeasurementErrorResponse(err.Error()))
 		}
-		return c.JSON(responses.MeasurementsSuccessResponse(result, "OK"))
+		return c.JSON(responses.ListMeasurementSuccessResponse(result, "OK"))
 	}
 }
 
 func CreateMeasurement(service service.MeasurementService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var requestBody domain.Measurement
+		fmt.Println("Measurement::Post", c.IP())
+		var requestBody requests.CreateMeasurementRequest
+		requestBody.Timestamp = primitive.NewDateTimeFromTime(time.Now())
 		err := c.BodyParser(&requestBody)
+		fmt.Println(requestBody)
 		if err != nil {
 			c.Status(http.StatusBadRequest)
 			return c.JSON(responses.MeasurementErrorResponse(err.Error()))
 		}
+		// Fixme request to domain ?
 		result, err := service.CreateMeasurement(&requestBody)
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(responses.MeasurementErrorResponse(err.Error()))
 		}
-		return c.JSON(responses.MeasurementsuccessResponse(result, "ok"))
+		return c.JSON(responses.CreateMeasurementSuccessResponse(result, "ok"))
 	}
 }
 
 func ReadMeasurement(service service.MeasurementService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var requestBody domain.Measurement
-		err := c.BodyParser(&requestBody)
-		if err != nil {
-			c.Status(http.StatusBadRequest)
-			return c.JSON(responses.MeasurementErrorResponse(err.Error()))
-		}
-		result, err := service.ReadMeasurement("1")
-		if err != nil {
-			c.Status(http.StatusInternalServerError)
-			return c.JSON(responses.MeasurementErrorResponse(err.Error()))
-		}
-		return c.JSON(responses.MeasurementsuccessResponse(result, "ok"))
-	}
-}
+		var deviceId = c.Params("id")
+		var timestamp = c.Query("date")
+		var sensorType = c.Query("type")
 
-func UpdateMeasurement(service service.MeasurementService) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		var requestBody domain.Measurement
-		err := c.BodyParser(&requestBody)
-		if err != nil {
+		if deviceId == "" {
 			c.Status(http.StatusBadRequest)
-			return c.JSON(responses.MeasurementErrorResponse(err.Error()))
+			return c.JSON(responses.MeasurementErrorResponse("No ID"))
 		}
-		result, err := service.UpdateMeasurement(&requestBody)
+		result, err := service.ReadMeasurement(deviceId, sensorType, timestamp)
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(responses.MeasurementErrorResponse(err.Error()))
 		}
-		return c.JSON(responses.MeasurementsuccessResponse(result, "ok"))
-	}
-}
-
-func DeleteMeasurement(service service.MeasurementService) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		var requestBody domain.Measurement
-		err := c.BodyParser(&requestBody)
-		if err != nil {
-			c.Status(http.StatusBadRequest)
-			return c.JSON(responses.MeasurementErrorResponse(err.Error()))
-		}
-		result, err := service.UpdateMeasurement(&requestBody)
-		if err != nil {
-			c.Status(http.StatusInternalServerError)
-			return c.JSON(responses.MeasurementErrorResponse(err.Error()))
-		}
-		return c.JSON(responses.MeasurementsuccessResponse(result, "ok"))
+		return c.JSON(responses.ReadMeasurementSuccessResponse(result, "ok"))
 	}
 }

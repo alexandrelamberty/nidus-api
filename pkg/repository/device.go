@@ -15,9 +15,9 @@ import (
 type DeviceRepository interface {
 	ListDevices() (*[]domain.Device, error)
 	CreateDevice(user *domain.Device) (*domain.Device, error)
-	ReadDevice(ID string) (*domain.Device, error)
+	ReadDevice(id string) (*domain.Device, error)
 	UpdateDevice(user *domain.Device) (*domain.Device, error)
-	DeleteDevice(ID string) error
+	DeleteDevice(id string) error
 }
 
 func NewDeviceRepo(collection *mongo.Collection) DeviceRepository {
@@ -27,21 +27,28 @@ func NewDeviceRepo(collection *mongo.Collection) DeviceRepository {
 }
 
 func (r *repository) ListDevices() (*[]domain.Device, error) {
+	fmt.Println("DeviceRepository::ListDevices")
 	var devices []domain.Device
-	// opts := options.FindOne().SetSort(bson.D{{"age", 1}})
-	//cursor, err := r.Collection.Find(context.TODO(), bson.D{})
 	var device domain.Device
-	lookupStage := bson.D{{"$lookup", bson.D{{"from", "zones"}, {"localField", "zone"}, {"foreignField", "_id"}, {"as", "zone"}}}}
-	unwindStage := bson.D{{"$unwind", bson.D{{"path", "$zone"}, {"preserveNullAndEmptyArrays", false}}}}
-	cursor, err := r.Collection.Aggregate(context.Background(), mongo.Pipeline{lookupStage, unwindStage})
+	//opts := options.FindOne().SetSort(bson.D{{"age", 1}})
+	cursor, err := r.Collection.Find(context.TODO(), bson.D{})
 	if err != nil {
 		panic(err)
 	}
-	if err = cursor.All(context.Background(), &devices); err != nil {
-		panic(err)
-	}
+	/*
+		lookupStage := bson.D{{"$lookup", bson.D{{"from", "zones"}, {"localField", "zone"}, {"foreignField", "_id"}, {"as", "zone"}}}}
+		unwindStage := bson.D{{"$unwind", bson.D{{"path", "$zone"}, {"preserveNullAndEmptyArrays", false}}}}
+		cursor, err := r.Collection.Aggregate(context.Background(), mongo.Pipeline{lookupStage, unwindStage})
+		if err != nil {
+			panic(err)
+		}
+		if err = cursor.All(context.Background(), &devices); err != nil {
+			panic(err)
+		}
+	*/
 	for cursor.Next(context.TODO()) {
 		_ = cursor.Decode(&device)
+		fmt.Println(device)
 		devices = append(devices, device)
 	}
 	return &devices, nil
@@ -59,9 +66,9 @@ func (r *repository) CreateDevice(device *domain.Device) (*domain.Device, error)
 	return device, nil
 }
 
-func (r *repository) ReadDevice(ID string) (*domain.Device, error) {
+func (r *repository) ReadDevice(id string) (*domain.Device, error) {
 	var device *domain.Device
-	deviceId, err := primitive.ObjectIDFromHex(ID)
+	deviceId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
@@ -82,8 +89,8 @@ func (r *repository) UpdateDevice(device *domain.Device) (*domain.Device, error)
 	return device, nil
 }
 
-func (r *repository) DeleteDevice(ID string) error {
-	deviceId, err := primitive.ObjectIDFromHex(ID)
+func (r *repository) DeleteDevice(id string) error {
+	deviceId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return err
 	}

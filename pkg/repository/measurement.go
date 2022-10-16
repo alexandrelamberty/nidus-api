@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"nidus-server/internal/requests"
 	"nidus-server/pkg/domain"
 
 	// "time"
@@ -10,70 +11,78 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type MeasurementRepository interface {
 	ListMeasurements() (*[]domain.Measurement, error)
-	CreateMeasurement(user *domain.Measurement) (*domain.Measurement, error)
-	ReadMeasurement(ID string) (*domain.Measurement, error)
-	UpdateMeasurement(user *domain.Measurement) (*domain.Measurement, error)
-	DeleteMeasurement(ID string) error
+	CreateMeasurement(user *requests.CreateMeasurementRequest) (*domain.Measurement, error)
+	ReadMeasurement(ID string, sensorType string, timestamp string) (*domain.Measurement, error)
 }
 
-func NewMeasurementRepo(collection *mongo.Collection) MeasurementRepository {
+func NewMeasurementRepo(
+	temperature *mongo.Collection,
+	humidity *mongo.Collection,
+	pressure *mongo.Collection) MeasurementRepository {
 	return &repository{
-		Collection: collection,
+		Collection: humidity,
 	}
-}
-
-func (r *repository) CreateMeasurement(user *domain.Measurement) (*domain.Measurement, error) {
-	user.ID = primitive.NewObjectID()
-	//user.CreatedAt = time.Now()
-	//user.UpdatedAt = time.Now()
-	_, err := r.Collection.InsertOne(context.Background(), user)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
-func (r *repository) ReadMeasurement(ID string) (*domain.Measurement, error) {
-	var user *domain.Measurement
-	return user, nil
-}
-
-func (r *repository) UpdateMeasurement(user *domain.Measurement) (*domain.Measurement, error) {
-	// user.UpdatedAt = time.Now()
-	_, err := r.Collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{"$set": user})
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
-func (r *repository) DeleteMeasurement(ID string) error {
-	measurementId, err := primitive.ObjectIDFromHex(ID)
-	if err != nil {
-		return err
-	}
-	_, err = r.Collection.DeleteOne(context.Background(), bson.M{"_id": measurementId})
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (r *repository) ListMeasurements() (*[]domain.Measurement, error) {
-	var users []domain.Measurement
+	var measurements []domain.Measurement
+	// filter := bson.D{
+	// 	{"$and",
+	// 		bson.A{
+	// 			bson.D{{"value", 20}},
+	// 			bson.D{{"timestamp", "2022-10-04T06:32:18.394Z"}},
+	// 		},
+	// 	},
+	// }
 	cursor, err := r.Collection.Find(context.TODO(), bson.D{})
+	fmt.Println(cursor)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 	for cursor.Next(context.TODO()) {
-		var user domain.Measurement
-		_ = cursor.Decode(&user)
-		users = append(users, user)
+		var measurement domain.Measurement
+		_ = cursor.Decode(&measurement)
+		measurements = append(measurements, measurement)
 	}
-	return &users, nil
+	return &measurements, nil
+}
+
+func (r *repository) LastMeasurement(device_id string) (*[]domain.Measurement, error) {
+	var measurements []domain.Measurement
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"timestamp", -1}})
+	findOptions.SetLimit(1)
+	objID, _ := primitive.ObjectIDFromHex("6323ad8d2812cd11dc72a05a")
+	cursor, err := r.Collection.Find(context.TODO(), bson.D{{"metadata.device_id", objID}}, findOptions)
+	fmt.Println(cursor)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	for cursor.Next(context.TODO()) {
+		var measurement domain.Measurement
+		_ = cursor.Decode(&measurement)
+		measurements = append(measurements, measurement)
+	}
+	return &measurements, nil
+}
+
+func (r *repository) CreateMeasurement(measurement *requests.CreateMeasurementRequest) (*domain.Measurement, error) {
+	_, err := r.Collection.InsertOne(context.Background(), measurement)
+	if err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (r *repository) ReadMeasurement(ID string, sensorType string, timestamp string) (*domain.Measurement, error) {
+	var user *domain.Measurement
+	fmt.Println(ID, sensorType, timestamp)
+	return user, nil
 }

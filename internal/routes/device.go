@@ -8,6 +8,7 @@ import (
 )
 
 func DeviceRouter(app fiber.Router, service service.DeviceService) {
+	app.Post("/devices/pair", handlers.PairDevice(service))
 	app.Get("/devices", handlers.GetAllDevices(service))
 	app.Post("/devices", handlers.CreateDevice(service))
 	app.Get("/devices/:id", handlers.ReadDevice(service))

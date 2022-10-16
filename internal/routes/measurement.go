@@ -8,9 +8,7 @@ import (
 )
 
 func MeasurementRouter(app fiber.Router, service service.MeasurementService) {
-	app.Get("/Measurements", handlers.GetAllMeasurements(service))
-	app.Post("/Measurements", handlers.CreateMeasurement(service))
-	app.Get("/Measurements/:id", handlers.ReadMeasurement(service))
-	app.Post("/Measurements/:id", handlers.UpdateMeasurement(service))
-	app.Delete("/Measurements/:id", handlers.DeleteMeasurement(service))
+	app.Get("/measurements", handlers.GetAllMeasurements(service))
+	app.Post("/measurements", handlers.CreateMeasurement(service))
+	app.Get("/measurements/:id", handlers.ReadMeasurement(service))
 }
