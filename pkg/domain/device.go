@@ -9,6 +9,7 @@ type Device struct {
 	Name         string             `json:"name"`
 	Mac          string             `json:"mac"`
 	Ip           string             `json:"ip"`
-	Capabilities []Capability       `json:"capabilities" bson:"capabilities"`
+	Capabilities []Capability       `json:"capabilities" bson:"capabilities,omitempty"`
 	Zone         Zone               `json:"zone" bson:"zone,omitempty"`
+	Paired       string             `json:"paired" bson:"paired,omitempty"`
 }
