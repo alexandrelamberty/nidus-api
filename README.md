@@ -25,7 +25,7 @@ Home monitoring API part of the
 
 This application is part of a Docker stack and rely on a MongoDB database service. see:
 [Nidus](https://github.com/alexandrelamberty/nidus) project to launch the
-complete stack or only specific services.
+complete stack or only the `database` service.
 
 ### Run with Go
 
