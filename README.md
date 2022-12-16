@@ -68,17 +68,6 @@ network to join.
 docker run -p 3333:3333 --network=nidus_default --env-file .env --name nidus-api -d alexandrelamberty/nidus-api:latest
 ```
 
-## Push to Docker Hub
-
-Docker Hub [Nidus API](https://hub.docker.com/repository/docker/alexandrelamberty/nidus-api)
-
-> Automated with GitHub Action, see: [docker.yml](./.github/workflows/docker.yml)
-
-```bash
-docker tag alexandrelamberty/nidus-api:latest alexandrelamberty/nidus-api:latest
-docker push alexandrelamberty/nidus-api:latest
-```
-
 ## References
 
 - <https://github.com/gofiber/recipes/tree/master/clean-architecture>
