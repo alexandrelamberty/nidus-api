@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/gofiber/fiber/v2 v2.34.0
+	github.com/joho/godotenv v1.4.0
 	go.mongodb.org/mongo-driver v1.9.1
 )
 
@@ -13,8 +14,11 @@ require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
+<<<<<<< HEAD
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
+=======
+>>>>>>> ff899fec2f0a743aeae4c280ced15428e7144628
 	github.com/klauspost/compress v1.15.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect

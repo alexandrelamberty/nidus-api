@@ -35,9 +35,9 @@ func main() {
 	app.Use(cors.New())
 
 	// Logging
-	app.Use(logger.New(logger.Config{
-		Format:     "${cyan}[${time}] ${white}${pid} ${red}${status} ${blue}${methid} ${white}${path}\n",
-		TimeFormat: "02-Jan-2006",
+	app.Use("/", logger.New(logger.Config{
+		Format:     "${cyan}[${time}] [${ip}]:${port} ${white}${pid} ${red}${status} - ${blue}${method} ${white}${path}\n",
+		TimeFormat: "2006-01-02T15:04:05-0700",
 		TimeZone:   "Europe/Brussels",
 	}))
 
@@ -52,18 +52,29 @@ func main() {
 	deviceCollection := db.Collection("devices")
 	zoneCollection := db.Collection("zones")
 	capabilityCollection := db.Collection("capabilities")
+	temperaturesCollection := db.Collection("readings.temperature")
+	humidityCollection := db.Collection("readings.humidity")
+	pressureCollection := db.Collection("readings.pressure")
+	// settingsCollection := db.Collection("settings")
 
 	// Repositories
 	userRepo := repository.NewUserRepo(userCollection)
 	deviceRepo := repository.NewDeviceRepo(deviceCollection)
 	zoneRepo := repository.NewZoneRepo(zoneCollection)
 	capabilityRepo := repository.NewCapabilityRepo(capabilityCollection)
+	measurementRepo := repository.NewMeasurementRepo(temperaturesCollection,
+		humidityCollection,
+		pressureCollection)
+	// settingsRepository := repository.NewSettingsRepo(settingsCollection)
 
 	// Services
 	userService := service.NewUserService(userRepo)
 	deviceService := service.NewDeviceService(deviceRepo)
 	zoneService := service.NewZoneService(zoneRepo)
 	capabilityService := service.NewCapabilityService(capabilityRepo)
+	measurementService := service.NewMeasurementService(measurementRepo)
+	networkService := service.NewNetworkService()
+	// settingsService := service.NewSettingsService()
 
 	// Routes
 	api := app.Group("/")
@@ -71,11 +82,14 @@ func main() {
 	routes.DeviceRouter(api, deviceService)
 	routes.ZoneRouter(api, zoneService)
 	routes.CapabilityRouter(api, capabilityService)
+	routes.MeasurementRouter(api, measurementService)
+	routes.NetworkRouter(api, networkService)
+	// routes.SettingsRouter(api, settingsService)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Nidus API v0.0.1")
 	})
 
 	// Start the server
-	log.Fatal(app.Listen(":8080"))
+	log.Fatal(app.Listen(":3333"))
 }
