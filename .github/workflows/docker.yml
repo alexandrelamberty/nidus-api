@@ -2,9 +2,13 @@ name: Docker
 
 on:
   push:
-    branches: ["master"]
+    branches:
+      - "master"
+      - "develop/**"
+      - "releases/**"
+      - "features/**"
   pull_request:
-    branches: ["master"]
+    branches: ["master", "stagging"]
 
 jobs:
   build:
@@ -19,6 +23,6 @@ jobs:
         run: |
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag alexandrelamberty/nidus-api:latest
+        run: docker build . --file Dockerfile --tag alexandrelamberty/nidus-api:${{ env.BRANCH }}
       - name: Docker Push
         run: docker push alexandrelamberty/nidus-api

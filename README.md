@@ -44,7 +44,7 @@ DATABASE_URI=mongodb://nidus:nidus@localhost:27017/nidus
 Run the application:
 
 ```bash
-go run cmd/api/main
+go run cmd/main.go
 ```
 
 Go to <http://localhost:3333>
