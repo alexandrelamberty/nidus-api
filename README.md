@@ -1,5 +1,6 @@
 [![Go](https://github.com/alexandrelamberty/nidus-api/actions/workflows/go.yml/badge.svg)](https://github.com/alexandrelamberty/nidus-api/actions/workflows/go.yml)
 [![Docker](https://github.com/alexandrelamberty/nidus-api/actions/workflows/docker.yml/badge.svg)](https://github.com/alexandrelamberty/nidus-api/actions/workflows/docker.yml)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3aea820b0fa9450885511ef47068b4b0)](https://www.codacy.com/gh/alexandrelamberty/nidus-api/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=alexandrelamberty/nidus-api&amp;utm_campaign=Badge_Grade)
 
 # Nidus API
 
