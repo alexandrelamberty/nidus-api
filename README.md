@@ -26,8 +26,7 @@ Home monitoring API part of the
 ## Usage
 
 This application is part of a Docker stack and rely on a MongoDB database service. see:
-[Nidus](https://github.com/alexandrelamberty/nidus) project to launch the
-complete stack or only the `database` service.
+[Nidus](https://github.com/alexandrelamberty/nidus) project to launch the complete stack or only the `database` service.
 
 ### Run with Go
 
@@ -60,11 +59,10 @@ Go to <http://localhost:3333>
 Build the image, see: [Dockerfile](./Dockerfile).
 
 ```bash
-docker build . -t alexandrelamberty/nidus-api:latest
+docker build -t alexandrelamberty/nidus-api:latest .
 ```
 
-Run the image, we specify the ports mapping, environment variables file and
-network to join.
+Run the image, we specify the ports mapping, environment variables file and network to join.
 
 ```bash
 docker run -p 3333:3333 --network=nidus_default --env-file .env --name nidus-api -d alexandrelamberty/nidus-api:latest
