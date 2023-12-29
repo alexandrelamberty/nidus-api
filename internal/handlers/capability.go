@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"nidus-server/internal/responses"
 	"nidus-server/pkg/domain"
@@ -12,6 +13,7 @@ import (
 // GetCapabilities is a function to get all services from the database
 func GetAllCapabilities(service service.CapabilityService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		fmt.Println("GetCapabilities")
 		result, err := service.ListCapabilities()
 		if err != nil {
 			c.Status(http.StatusInternalServerError)

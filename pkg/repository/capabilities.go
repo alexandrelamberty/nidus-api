@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"log"
 	"nidus-server/pkg/domain"
 
 	// "time"
@@ -27,15 +28,19 @@ func NewCapabilityRepo(collection *mongo.Collection) CapabilityRepository {
 }
 
 func (r *repository) ListCapabilities() (*[]domain.Capability, error) {
+	fmt.Println("ListCapabilities")
 	var capabilities []domain.Capability
 	cursor, err := r.Collection.Find(context.TODO(), bson.D{})
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal("CapabilityRepository", err)
 		return nil, err
 	}
 	for cursor.Next(context.TODO()) {
 		var capability domain.Capability
-		_ = cursor.Decode(&capability)
+		err = cursor.Decode(&capability)
+		if err != nil {
+			log.Fatal(err)
+		}
 		capabilities = append(capabilities, capability)
 	}
 	return &capabilities, nil

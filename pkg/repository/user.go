@@ -15,10 +15,11 @@ import (
 type UserRepository interface {
 	ListUsers() (*[]domain.User, error)
 	CreateUser(user *domain.User) (*domain.User, error)
-	ReadUser(ID string) (*domain.User, error)
+	ReadUser(id string) (*domain.User, error)
 	UpdateUser(user *domain.User) (*domain.User, error)
-	DeleteUser(ID string) error
+	DeleteUser(id string) error
 }
+
 
 func NewUserRepo(collection *mongo.Collection) UserRepository {
 	return &repository{
@@ -37,8 +38,17 @@ func (r *repository) CreateUser(user *domain.User) (*domain.User, error) {
 	return user, nil
 }
 
-func (r *repository) ReadUser(ID string) (*domain.User, error) {
+func (r *repository) ReadUser(id string) (*domain.User, error) {
 	var user *domain.User
+	userId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	filter := bson.M{"_id": userId}
+	err = r.Collection.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
 	return user, nil
 }
 
@@ -51,10 +61,8 @@ func (r *repository) UpdateUser(user *domain.User) (*domain.User, error) {
 	return user, nil
 }
 
-func (r *repository) DeleteUser(ID string) error {
-
-	fmt.Println(ID)
-	userID, err := primitive.ObjectIDFromHex(ID)
+func (r *repository) DeleteUser(id string) error {
+	userID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return err
 	}
@@ -69,7 +77,7 @@ func (r *repository) ListUsers() (*[]domain.User, error) {
 	var users []domain.User
 	cursor, err := r.Collection.Find(context.TODO(), bson.D{})
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("ListUsers", err)
 		return nil, err
 	}
 	for cursor.Next(context.TODO()) {

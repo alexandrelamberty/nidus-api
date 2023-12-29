@@ -2,34 +2,48 @@ package main
 
 import (
 	"log"
+	"nidus-server/internal/config"
 	"nidus-server/internal/routes"
 	"nidus-server/pkg/infrastructure"
 	"nidus-server/pkg/repository"
 	"nidus-server/pkg/service"
-	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/joho/godotenv"
 )
 
+/*
+Nidus API
+https://docs.gofiber.io/
+*/
 func main() {
 
 	// Environments variables
-	// FIXME: Improve dev/build workflow with environment variables
-	// With Docker environment variables are loaded into the container.
-	// With Go we load the local .env file
-	_, exist := os.LookupEnv("DATABASE_URI")
-	if !exist {
-		err := godotenv.Load(".env")
-		if err != nil {
-			log.Fatalf("Error loading .env file")
-		}
+	log.Println("[Config] Checking configuration ...")
+	err := config.CheckConfig()
+	if err != nil {
+		log.Fatal("[CheckConfig] ", err)
+	}
+
+	// Database
+	log.Println("[Database] Initializing ...")
+	db, err := infrastructure.MongoDBConnection()
+	if err != nil {
+		log.Fatal("[MongoDB] ", err)
 	}
 
 	// Fiber Application
-	app := fiber.New()
+	// https://docs.gofiber.io/api/fiber#new
+	// https://docs.gofiber.io/api/fiber#config
+	log.Println("[App] Initializing ...")
+	app := fiber.New(fiber.Config{
+		Prefork:       true,
+		CaseSensitive: true,
+		StrictRouting: true,
+		ServerHeader:  "Fiber",
+		AppName:       "Nidus API v1.0.1",
+	})
 
 	// Cors
 	app.Use(cors.New())
@@ -37,15 +51,9 @@ func main() {
 	// Logging
 	app.Use("/", logger.New(logger.Config{
 		Format:     "${cyan}[${time}] [${ip}]:${port} ${white}${pid} ${red}${status} - ${blue}${method} ${white}${path}\n",
-		TimeFormat: "2006-01-02T15:04:05-0700",
+		TimeFormat: "2006/01/02 15:04:05",
 		TimeZone:   "Europe/Brussels",
 	}))
-
-	// Database
-	db, err := infrastructure.MongoDBConnection()
-	if err != nil {
-		log.Fatal("Database connection Error $s", err)
-	}
 
 	// Collections
 	userCollection := db.Collection("users")
@@ -86,10 +94,17 @@ func main() {
 	routes.NetworkRouter(api, networkService)
 	// routes.SettingsRouter(api, settingsService)
 
+	// TODO: create new route
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Nidus API v0.0.1")
+		return c.SendString("Nidus API")
 	})
 
 	// Start the server
-	log.Fatal(app.Listen(":3333"))
+	err = app.Listen(":3333")
+	if err != nil {
+		log.Fatal("[App] ", err)
+	}
+
+	// MQTT Client
+
 }

@@ -25,22 +25,22 @@ func GetAllMeasurements(service service.MeasurementService) fiber.Handler {
 
 func CreateMeasurement(service service.MeasurementService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		fmt.Println("Measurement::Post", c.IP())
 		var requestBody requests.CreateMeasurementRequest
 		requestBody.Timestamp = primitive.NewDateTimeFromTime(time.Now())
 		err := c.BodyParser(&requestBody)
-		fmt.Println(requestBody)
+		fmt.Println(requestBody.Value)
 		if err != nil {
 			c.Status(http.StatusBadRequest)
 			return c.JSON(responses.MeasurementErrorResponse(err.Error()))
 		}
+		return c.JSON("ok")
 		// Fixme request to domain ?
-		result, err := service.CreateMeasurement(&requestBody)
-		if err != nil {
-			c.Status(http.StatusInternalServerError)
-			return c.JSON(responses.MeasurementErrorResponse(err.Error()))
-		}
-		return c.JSON(responses.CreateMeasurementSuccessResponse(result, "ok"))
+		// result, err := service.CreateMeasurement(&requestBody)
+		// if err != nil {
+		// 	c.Status(http.StatusInternalServerError)
+		// 	return c.JSON(responses.MeasurementErrorResponse(err.Error()))
+		// }
+		// return c.JSON(responses.CreateMeasurementSuccessResponse(result, "ok"))
 	}
 }
 

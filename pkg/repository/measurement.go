@@ -82,7 +82,7 @@ func (r *repository) CreateMeasurement(measurement *requests.CreateMeasurementRe
 }
 
 func (r *repository) ReadMeasurement(ID string, sensorType string, timestamp string) (*domain.Measurement, error) {
-	var user *domain.Measurement
+	var measurement *domain.Measurement
 	fmt.Println(ID, sensorType, timestamp)
-	return user, nil
+	return measurement, nil
 }

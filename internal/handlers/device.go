@@ -31,7 +31,6 @@ func PairDevice(service service.DeviceService) fiber.Handler {
 	}
 }
 
-// GetDevices is a function to get all services from the database
 func GetAllDevices(service service.DeviceService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		result, err := service.ListDevices()

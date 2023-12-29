@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"nidus-server/pkg/domain"
 	"nidus-server/pkg/repository"
 )
@@ -24,6 +25,7 @@ func NewCapabilityService(r repository.CapabilityRepository) CapabilityService {
 }
 
 func (s *capabilityService) ListCapabilities() (*[]domain.Capability, error) {
+	fmt.Println("ListCapabilities")
 	return s.repository.ListCapabilities()
 }
 
