@@ -26,10 +26,24 @@ func NewZoneRepo(collection *mongo.Collection) ZoneRepository {
 	}
 }
 
+func (r *repository) ListZones() (*[]domain.Zone, error) {
+	var users []domain.Zone
+	cursor, err := r.Collection.Find(context.TODO(), bson.D{})
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+	for cursor.Next(context.TODO()) {
+		var user domain.Zone
+		_ = cursor.Decode(&user)
+		users = append(users, user)
+	}
+	return &users, nil
+}
+
 func (r *repository) CreateZone(user *domain.Zone) (*domain.Zone, error) {
 	user.ID = primitive.NewObjectID()
-	//user.CreatedAt = time.Now()
-	//user.UpdatedAt = time.Now()
 	_, err := r.Collection.InsertOne(context.Background(), user)
 	if err != nil {
 		return nil, err
@@ -38,12 +52,11 @@ func (r *repository) CreateZone(user *domain.Zone) (*domain.Zone, error) {
 }
 
 func (r *repository) ReadZone(ID string) (*domain.Zone, error) {
-	var user *domain.Zone
-	return user, nil
+	var zone *domain.Zone
+	return zone, nil
 }
 
 func (r *repository) UpdateZone(user *domain.Zone) (*domain.Zone, error) {
-	// user.UpdatedAt = time.Now()
 	_, err := r.Collection.UpdateOne(context.Background(), bson.M{"_id": user.ID}, bson.M{"$set": user})
 	if err != nil {
 		return nil, err
@@ -61,19 +74,4 @@ func (r *repository) DeleteZone(ID string) error {
 		return err
 	}
 	return nil
-}
-
-func (r *repository) ListZones() (*[]domain.Zone, error) {
-	var users []domain.Zone
-	cursor, err := r.Collection.Find(context.TODO(), bson.D{})
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	for cursor.Next(context.TODO()) {
-		var user domain.Zone
-		_ = cursor.Decode(&user)
-		users = append(users, user)
-	}
-	return &users, nil
 }

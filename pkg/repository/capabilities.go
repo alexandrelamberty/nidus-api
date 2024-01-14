@@ -35,6 +35,7 @@ func (r *repository) ListCapabilities() (*[]domain.Capability, error) {
 		log.Fatal("CapabilityRepository", err)
 		return nil, err
 	}
+	defer cursor.Close(context.TODO())
 	for cursor.Next(context.TODO()) {
 		var capability domain.Capability
 		err = cursor.Decode(&capability)

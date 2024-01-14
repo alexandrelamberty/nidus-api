@@ -31,20 +31,14 @@ func NewMeasurementRepo(
 
 func (r *repository) ListMeasurements() (*[]domain.Measurement, error) {
 	var measurements []domain.Measurement
-	// filter := bson.D{
-	// 	{"$and",
-	// 		bson.A{
-	// 			bson.D{{"value", 20}},
-	// 			bson.D{{"timestamp", "2022-10-04T06:32:18.394Z"}},
-	// 		},
-	// 	},
-	// }
+
 	cursor, err := r.Collection.Find(context.TODO(), bson.D{})
-	fmt.Println(cursor)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
+	defer cursor.Close(context.TODO())
+
 	for cursor.Next(context.TODO()) {
 		var measurement domain.Measurement
 		_ = cursor.Decode(&measurement)

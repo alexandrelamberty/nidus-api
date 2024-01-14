@@ -13,21 +13,18 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
-/*
-Nidus API
-https://docs.gofiber.io/
-*/
+// Nidus API
+// Server application using the Fiber framework and MongoDB as database.
+// Documentation: https://docs.gofiber.io/, https://github.com/gofiber/fiber
 func main() {
 
 	// Environments variables
-	log.Println("[Config] Checking configuration ...")
 	err := config.CheckConfig()
 	if err != nil {
 		log.Fatal("[CheckConfig] ", err)
 	}
 
 	// Database
-	log.Println("[Database] Initializing ...")
 	db, err := infrastructure.MongoDBConnection()
 	if err != nil {
 		log.Fatal("[MongoDB] ", err)
@@ -36,17 +33,21 @@ func main() {
 	// Fiber Application
 	// https://docs.gofiber.io/api/fiber#new
 	// https://docs.gofiber.io/api/fiber#config
-	log.Println("[App] Initializing ...")
 	app := fiber.New(fiber.Config{
-		Prefork:       true,
+		// https://github.com/gofiber/fiber/issues/1021#issuecomment-730537971
+		// See the Dockerfile
+		Prefork:       false, // keep this to false
 		CaseSensitive: true,
 		StrictRouting: true,
 		ServerHeader:  "Fiber",
-		AppName:       "Nidus API v1.0.1",
+		AppName:       "Nidus API v0.0.1",
 	})
 
 	// Cors
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000, http://nidus.lan, https://nidus.lan",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 
 	// Logging
 	app.Use("/", logger.New(logger.Config{
@@ -102,9 +103,6 @@ func main() {
 	// Start the server
 	err = app.Listen(":3333")
 	if err != nil {
-		log.Fatal("[App] ", err)
+		log.Fatal("[App] error ", err)
 	}
-
-	// MQTT Client
-
 }

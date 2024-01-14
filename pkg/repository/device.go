@@ -16,7 +16,7 @@ type DeviceRepository interface {
 	ListDevices() (*[]domain.Device, error)
 	CreateDevice(user *domain.Device) (*domain.Device, error)
 	ReadDevice(id string) (*domain.Device, error)
-	UpdateDevice(user *domain.Device) (*domain.Device, error)
+	UpdateDevice(id string, user *domain.Device) (*domain.Device, error)
 	DeleteDevice(id string) error
 }
 
@@ -27,38 +27,28 @@ func NewDeviceRepo(collection *mongo.Collection) DeviceRepository {
 }
 
 func (r *repository) ListDevices() (*[]domain.Device, error) {
-	fmt.Println("DeviceRepository::ListDevices")
 	var devices []domain.Device
-	var device domain.Device
-	//opts := options.FindOne().SetSort(bson.D{{"age", 1}})
+
 	cursor, err := r.Collection.Find(context.TODO(), bson.D{})
 	if err != nil {
 		panic(err)
 	}
-	/*
-		lookupStage := bson.D{{"$lookup", bson.D{{"from", "zones"}, {"localField", "zone"}, {"foreignField", "_id"}, {"as", "zone"}}}}
-		unwindStage := bson.D{{"$unwind", bson.D{{"path", "$zone"}, {"preserveNullAndEmptyArrays", false}}}}
-		cursor, err := r.Collection.Aggregate(context.Background(), mongo.Pipeline{lookupStage, unwindStage})
-		if err != nil {
-			panic(err)
-		}
-		if err = cursor.All(context.Background(), &devices); err != nil {
-			panic(err)
-		}
-	*/
+	defer cursor.Close(context.TODO())
+
 	for cursor.Next(context.TODO()) {
-		_ = cursor.Decode(&device)
+		var device domain.Device
+		if err := cursor.Decode(&device); err != nil {
+			return nil, err
+		}
 		fmt.Println(device)
 		devices = append(devices, device)
 	}
+
 	return &devices, nil
 }
 
 func (r *repository) CreateDevice(device *domain.Device) (*domain.Device, error) {
 	device.ID = primitive.NewObjectID()
-	fmt.Printf("%+v\n", device)
-	//user.CreatedAt = time.Now()
-	//user.UpdatedAt = time.Now()
 	_, err := r.Collection.InsertOne(context.Background(), device)
 	if err != nil {
 		return nil, err
@@ -80,9 +70,8 @@ func (r *repository) ReadDevice(id string) (*domain.Device, error) {
 	return device, nil
 }
 
-func (r *repository) UpdateDevice(device *domain.Device) (*domain.Device, error) {
-	//user.UpdatedAt = time.Now()
-	_, err := r.Collection.UpdateOne(context.Background(), bson.M{"_id": device.ID}, bson.M{"$set": device})
+func (r *repository) UpdateDevice(id string, device *domain.Device) (*domain.Device, error) {
+	_, err := r.Collection.UpdateOne(context.Background(), bson.M{"_id": id}, bson.M{"$set": device})
 	if err != nil {
 		return nil, err
 	}
@@ -94,9 +83,10 @@ func (r *repository) DeleteDevice(id string) error {
 	if err != nil {
 		return err
 	}
-	_, err = r.Collection.DeleteOne(context.Background(), bson.M{"_id": deviceId})
+	result, err := r.Collection.DeleteOne(context.Background(), bson.M{"_id": deviceId})
 	if err != nil {
 		return err
 	}
+	fmt.Println(result.DeletedCount)
 	return nil
 }

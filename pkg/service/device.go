@@ -9,7 +9,7 @@ type DeviceService interface {
 	ListDevices() (*[]domain.Device, error)
 	CreateDevice(*domain.Device) (*domain.Device, error)
 	ReadDevice(id string) (*domain.Device, error)
-	UpdateDevice(user *domain.Device) (*domain.Device, error)
+	UpdateDevice(id string, user *domain.Device) (*domain.Device, error)
 	DeleteDevice(id string) error
 	PairDevice(id string) string
 }
@@ -36,8 +36,8 @@ func (s *deviceService) ReadDevice(ID string) (*domain.Device, error) {
 	return s.repository.ReadDevice(ID)
 }
 
-func (s *deviceService) UpdateDevice(device *domain.Device) (*domain.Device, error) {
-	return s.repository.UpdateDevice(device)
+func (s *deviceService) UpdateDevice(id string, device *domain.Device) (*domain.Device, error) {
+	return s.repository.UpdateDevice(id, device)
 }
 
 func (s *deviceService) DeleteDevice(id string) error {

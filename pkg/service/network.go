@@ -26,11 +26,7 @@ func (*networkService) Scan() string {
 	fmt.Print("Scan function\n")
 	// apr-scan -I [interface] [gateway]/24
 	app := "arp"
-
 	arg0 := "-a"
-	// arg1 := "Hello world"
-	// arg2 := "\n\tfrom"
-	// arg3 := "golang"
 
 	cmd := exec.Command(app, arg0)
 	// cmd := exec.Command(app, arg0, arg1, arg2, arg3)
