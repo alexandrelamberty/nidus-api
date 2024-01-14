@@ -10,6 +10,7 @@
 .dockerignore
 
 .vscode
+.github
 
 *_test.go
 .env

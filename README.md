@@ -13,11 +13,8 @@ Home monitoring API part of the
 - [x] Manage devices, zones, capabilities
 - [x] Pair device
 - [ ] Create alerts and notifications
-- [ ] Security
-  - [ ] Key
-- [ ] Tests
 
-## Technolgies and frameworks
+## Technologies and frameworks
 
 - [Docker](https://www.docker.com/)
 - [Go](https://go.dev/)
@@ -34,12 +31,11 @@ If the database service is up and running, create an .env file and fill it
 accordingly with the `database` service configuration.
 
 ```properties
-ENV=dev
+DATABASE_URI=mongodb://nidus:nidus@localhost:27017/nidus
 PAIRING_KEY=9fca54477c8ad4e70dc5e1084f884aad
+BCRYPT_HASH=7f91317e30a02bc7b87205e95b842df2
 JWT_SECRET=d7a481461577ba4c3c4c6946cca7204b
 JWT_EXPIRE=90
-BCRYPT_HASH=7f91317e30a02bc7b87205e95b842df2
-DATABASE_URI=mongodb://nidus:nidus@localhost:27017/nidus
 ```
 
 Run the application:
@@ -59,7 +55,7 @@ Go to <http://localhost:3333>
 Build the image, see: [Dockerfile](./Dockerfile).
 
 ```bash
-docker build -t alexandrelamberty/nidus-api:latest .
+docker build . -t alexandrelamberty/nidus-api:latest
 ```
 
 Run the image, we specify the ports mapping, environment variables file and network to join.
