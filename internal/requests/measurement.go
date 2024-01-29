@@ -7,7 +7,7 @@ import (
 )
 
 type CreateMeasurementRequest struct {
-	Metadata  domain.Metadata    `json:"metadata" bson:"metadata,omitempty"`
-	Value     float32            `json:"value" bson:"value"`
-	Timestamp primitive.DateTime `json:"timestamp" bson:"timestamp"`
+	Metadata  domain.Metadata    `json:"metadata" validate:"required"`
+	Value     float32            `json:"value" validate:"required, number"`
+	Timestamp primitive.DateTime `json:"timestamp" validate:"required"`
 }
