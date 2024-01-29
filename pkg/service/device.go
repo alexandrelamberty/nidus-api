@@ -12,6 +12,7 @@ type DeviceService interface {
 	UpdateDevice(id string, user *domain.Device) (*domain.Device, error)
 	DeleteDevice(id string) error
 	PairDevice(id string) string
+	UnPairDevice(id string) string
 }
 
 type deviceService struct {
@@ -45,5 +46,14 @@ func (s *deviceService) DeleteDevice(id string) error {
 }
 
 func (s *deviceService) PairDevice(id string) string {
+	// Create the device
 	return "pairing: " + id
+}
+
+func (s *deviceService) UnPairDevice(id string) string {
+	return "unpairing: " + id
+}
+
+func (s *deviceService) VerifyDeviceCapabilities(id string) string {
+	return "unpairing: " + id
 }
