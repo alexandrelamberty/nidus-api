@@ -84,8 +84,6 @@ func SetupDevice(service service.DeviceService, capabilityService service.Capabi
 			return c.JSON(responses.DeviceErrorResponse(err.Error()))
 		}
 
-		// 
-
 		device := domain.Device{
 			// CapabilityIDs: request.CapabilityIDs,
 			ZoneID: request.ZoneID,
