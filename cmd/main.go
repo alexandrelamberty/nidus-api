@@ -41,11 +41,31 @@ func main() {
 		StrictRouting: true,
 		ServerHeader:  "Fiber",
 		AppName:       "Nidus API v0.0.1",
+		// ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+		// 	// Status code defaults to 500
+		// 	code := fiber.StatusInternalServerError
+
+		// 	// Retrieve the custom status code if it's a *fiber.Error
+		// 	var e *fiber.Error
+		// 	if errors.As(err, &e) {
+		// 		code = e.Code
+		// 	}
+
+		// 	// Send custom error page
+		// 	err = ctx.Status(code).SendFile(fmt.Sprintf("./%d.html", code))
+		// 	if err != nil {
+		// 		// In case the SendFile fails
+		// 		return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+		// 	}
+
+		// 	// Return from handler
+		// 	return nil
+		// },
 	})
 
 	// Cors
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000, http://nidus.lan, https://nidus.lan",
+		AllowOrigins: "*, http://nidus.lan, https://nidus.lan",
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
@@ -88,7 +108,7 @@ func main() {
 	// Routes
 	api := app.Group("/")
 	routes.UserRouter(api, userService)
-	routes.DeviceRouter(api, deviceService)
+	routes.DeviceRouter(api, deviceService, capabilityService)
 	routes.ZoneRouter(api, zoneService)
 	routes.CapabilityRouter(api, capabilityService)
 	routes.MeasurementRouter(api, measurementService)
