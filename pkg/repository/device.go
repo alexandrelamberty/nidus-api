@@ -71,8 +71,15 @@ func (r *repository) ReadDevice(id string) (*domain.Device, error) {
 }
 
 func (r *repository) UpdateDevice(id string, device *domain.Device) (*domain.Device, error) {
-	_, err := r.Collection.UpdateOne(context.Background(), bson.M{"_id": id}, bson.M{"$set": device})
+	update := bson.M{"$set": device}
+	filter := bson.M{"_id": id}
+	result, err := r.Collection.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
+		return nil, err
+	}
+	if result.ModifiedCount == 0 {
+		fmt.Println("No documents were matched and updated.")
+		err := mongo.ErrNoDocuments
 		return nil, err
 	}
 	return device, nil
