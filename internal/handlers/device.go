@@ -7,11 +7,16 @@ import (
 	"nidus-server/pkg/domain"
 	"nidus-server/pkg/service"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
-func PairDevice(service service.DeviceService) fiber.Handler {
+func PairDevice(service service.DeviceService, capabilityService service.CapabilityService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		// TODO: Check pairing key is valid
+		// pairingKey := c.Params("token")
+
+		// Parse the request
 		var request requests.PairDeviceRequest
 		err := c.BodyParser(&request)
 		if err != nil {
@@ -19,13 +24,74 @@ func PairDevice(service service.DeviceService) fiber.Handler {
 			return c.JSON(responses.DeviceErrorResponse(err.Error()))
 		}
 
-		// Create the device we want to pair
-		var device domain.Device
-		device.Name = request.Name
-		device.Ip = request.Ip
-		device.Mac = request.Mac
-		device.Paired = true
+		// Validate the request
+		validate := validator.New()
+		if err := validate.Struct(request); err != nil {
+			c.Status(http.StatusInternalServerError)
+			return c.JSON(responses.DeviceErrorResponse(err.Error()))
+		}
+
+		// Verify that the device has existing capabilities
+		deviceCapabilityIDs, err := capabilityService.VerifyDeviceCapabilities(request.Capabilities)
+		if err != nil {
+			c.Status(http.StatusInternalServerError)
+			return c.JSON(responses.DeviceErrorResponse(err.Error()))
+		}
+
+		device := domain.Device{
+			Name:          request.Name,
+			Ip:            request.Ip,
+			Mac:           request.Mac,
+			Paired:        true,
+			CapabilityIDs: *deviceCapabilityIDs,
+		}
+
 		result, err := service.CreateDevice(&device)
+		if err != nil {
+			c.Status(http.StatusInternalServerError)
+			return c.JSON(responses.DeviceErrorResponse(err.Error()))
+		}
+
+		// Loop through the capabilities and add the device
+		// for _, capability := range capabilities {
+		// 	err := capabilityService.AddDeviceToCapability(capability.ID, device.ID)
+		// 	if err != nil {
+		// 		c.Status(http.StatusInternalServerError)
+		// 		return c.JSON(responses.DeviceErrorResponse(err.Error()))
+		// 	}
+		// }
+
+		return c.JSON(responses.DeviceSuccessResponse(result, "Device paired successfully"))
+	}
+}
+
+func SetupDevice(service service.DeviceService, capabilityService service.CapabilityService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		device_id := c.Params("id")
+
+		// Parse the request
+		var request requests.SetupDeviceRequest
+		err := c.BodyParser(&request)
+		if err != nil {
+			c.Status(http.StatusInternalServerError)
+			return c.JSON(responses.DeviceErrorResponse(err.Error()))
+		}
+
+		// Validate the request
+		validate := validator.New()
+		if err := validate.Struct(request); err != nil {
+			c.Status(http.StatusInternalServerError)
+			return c.JSON(responses.DeviceErrorResponse(err.Error()))
+		}
+
+		// 
+
+		device := domain.Device{
+			// CapabilityIDs: request.CapabilityIDs,
+			ZoneID: request.ZoneID,
+		}
+
+		result, err := service.UpdateDevice(device_id, &device)
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(responses.DeviceErrorResponse(err.Error()))
@@ -34,6 +100,20 @@ func PairDevice(service service.DeviceService) fiber.Handler {
 		return c.JSON(responses.DeviceSuccessResponse(result, "Device paired successfully"))
 	}
 }
+
+// func UnPairDevice(service service.DeviceService) fiber.Handler {
+// 	return func(c *fiber.Ctx) error {
+// 		id := c.Params("id")
+
+// 		err := service.UnPairDevice(id)
+// 		if err != nil {
+// 			c.Status(http.StatusInternalServerError)
+// 			return c.JSON(responses.DeviceErrorResponse(err.Error()))
+// 		}
+
+// 		return c.JSON(responses.DeviceSuccessResponse(nil, "Device unpaired successfully"))
+// 	}
+// }
 
 func GetAllDevices(service service.DeviceService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
